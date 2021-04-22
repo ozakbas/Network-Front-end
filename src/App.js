@@ -4,23 +4,10 @@ import GoogleButton from "./button_google.png";
 import { useState } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
-import Network from "./Network.js";
+import TwitterNetwork from "./TwitterNetwork.js";
+import GoogleNetwork from "./GoogleNetwork.js";
 
 function App() {
-  const [info, setInfo] = useState("not logged in");
-
-  function callbackFunction() {
-    fetch("http://localhost:3000/twitter/callback", {
-      method: "GET",
-      body: {},
-    })
-      .then((response) => {
-        console.log(response);
-      })
-
-      .catch((error) => console.log("there is an error", error));
-  }
-
   function loginTwitter() {
     var myHeaders = new Headers();
     myHeaders.append("Accept", "application/json");
@@ -34,11 +21,7 @@ function App() {
     };
     fetch("http://localhost:3000/twitter/authorize", requestOptions)
       .then((response) => {
-        setInfo(response);
-
-        window.location = response.url;
-
-        //window.open(response.url, "_self");
+        window.open(response.url, "_self");
       })
 
       .catch((error) => console.log("there is an error", error));
@@ -77,7 +60,11 @@ function App() {
           </div>
         </Route>
         <Route path="/twitter/callback">
-          <Network />
+          <TwitterNetwork />
+        </Route>
+
+        <Route path="/oauth-callback">
+          <GoogleNetwork />
         </Route>
       </Switch>
     </Router>
