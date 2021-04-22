@@ -22,16 +22,23 @@ function App() {
   }
 
   function loginTwitter() {
-    fetch("http://localhost:3000/twitter/authorize", {
+    var myHeaders = new Headers();
+    myHeaders.append("Accept", "application/json");
+    myHeaders.append("Content-Type", "application/json");
+
+    var requestOptions = {
       method: "GET",
+      headers: myHeaders,
       redirect: "manual",
-    })
+      credentials: "include",
+    };
+    fetch("http://localhost:3000/twitter/authorize", requestOptions)
       .then((response) => {
         setInfo(response);
 
-        //window.location = response.url;
+        window.location = response.url;
 
-        window.open(response.url, "_self");
+        //window.open(response.url, "_self");
       })
 
       .catch((error) => console.log("there is an error", error));

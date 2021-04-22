@@ -15,6 +15,7 @@ function Network() {
 
   function callbackFunction() {
     var myHeaders = new Headers();
+    myHeaders.append("Accept", "application/json");
     myHeaders.append("Content-Type", "application/json");
 
     var raw = JSON.stringify({
@@ -25,7 +26,7 @@ function Network() {
       method: "POST",
       headers: myHeaders,
       body: raw,
-      redirect: "follow",
+      redirect: "manual",
       credentials: "include",
     };
 
