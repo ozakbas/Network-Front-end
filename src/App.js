@@ -1,7 +1,6 @@
 import "./App.css";
 import TwitterButton from "./button_twitter.png";
 import GoogleButton from "./button_google.png";
-import { useState } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 import TwitterNetwork from "./TwitterNetwork.js";
