@@ -4,6 +4,12 @@ import * as d3 from "d3";
 function Network({ data }) {
   function initializeGraph(data, svgClass, width, height) {
     //Initializing chart
+    const previousSmallChart = d3.select(svgClass);
+    previousSmallChart.selectAll("g").remove();
+
+    const removeElements = (elms) => elms.forEach((el) => el.remove());
+    removeElements(document.querySelectorAll(".node"));
+
     const chart = d3
       .select(svgClass) //.chart
       .attr("width", width)
