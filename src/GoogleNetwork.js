@@ -1,8 +1,59 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import qs from "qs";
+import "./Network.css";
 
-import Network from "./Network";
+import Network from "./NetworkChart";
+
+function createLinks(nodes, raw) {
+  let lines = [];
+
+  raw.forEach((element) => {
+    let source = element.source;
+    let target = element.target;
+
+    let sourceElement = nodes.find((element) => element.name === source);
+    let targetElement = nodes.find((element) => element.name === target);
+
+    lines.push({
+      source: sourceElement.id,
+      target: targetElement.id,
+      weight: element.weight,
+    });
+  });
+
+  return lines;
+}
+
+function createNodes(raw) {
+  let characters = [];
+  let nodes = [];
+  let count = 0;
+
+  raw.forEach((element, index) => {
+    let source = element.source;
+    let target = element.target;
+
+    if (!characters.includes(source)) {
+      characters.push(source);
+      nodes.push({ id: count, name: source });
+      count += 1;
+    }
+
+    if (!characters.includes(target)) {
+      characters.push(target);
+      nodes.push({ id: count, name: target });
+      count += 1;
+    }
+  });
+  console.log('NODE0: ', nodes[0]);
+  return nodes;
+}
+
+function mergeData(nodes, links) {
+  let data = { nodes: nodes, links: links };
+  return data;
+}
 
 function GoogleNetwork() {
   const [status, setStatus] = useState(false);
@@ -11,6 +62,7 @@ function GoogleNetwork() {
   const token = qs.parse(location.search, { ignoreQueryPrefix: true }).code;
 
   useEffect(() => {
+   
     var myHeaders = new Headers();
     myHeaders.append("Accept", "application/json");
     myHeaders.append("Content-Type", "application/json");
@@ -33,25 +85,16 @@ function GoogleNetwork() {
       .catch((error) => console.log("error", error));
   }, []);
 
-  function initializeData(links) {
-    let nodes = [];
-    let new_links = [];
+  function initializeData(data) {
+    
+    console.log('DATA: ', data);
+    let nodes = createNodes(data);
+    console.log('NODES: ', nodes);
+    let links = createLinks(nodes, data);
+    console.log('LINKS: ', links);
+    let mergedData = mergeData(nodes, links);
 
-    nodes.push({ id: 0, name: links[0].target });
-
-    links.forEach((element, index) => {
-      nodes.push({ id: index + 1, name: element.source });
-
-      new_links.push({
-        source: index + 1,
-        target: 0,
-        weight: element.weight,
-      });
-    });
-
-    let data = { nodes: nodes, links: new_links };
-
-    setData(data);
+    setData(mergedData);
     setStatus(true);
   }
 
