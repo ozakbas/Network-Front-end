@@ -339,7 +339,6 @@ function NetworkChart({ data }) {
 
   return (
     <div className="container">
-      <h1>Gmail Network</h1>
       <div className="chartContainer">
         <svg className="chart"></svg>
       </div>
