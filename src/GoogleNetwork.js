@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import qs from "qs";
 import "./Network.css";
 
-import Network from "./NetworkChart";
+import Network from "./Network";
 
 function createLinks(nodes, raw) {
   let lines = [];

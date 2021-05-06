@@ -55,44 +55,17 @@ function mergeData(nodes, links) {
   return data;
 }
 
-function TwitterNetwork() {
+function CustomNetwork() {
   const [status, setStatus] = useState(false);
   const [data, setData] = useState({});
   const location = useLocation();
-  const oauth_token = qs.parse(location.search, { ignoreQueryPrefix: true })
-    .oauth_token;
-  const oauth_verifier = qs.parse(location.search, { ignoreQueryPrefix: true })
-    .oauth_verifier;
+  const token = qs.parse(location.search, { ignoreQueryPrefix: true }).code;
 
   useEffect(() => {
-    callbackFunction();
+    const data = JSON.parse(location.state);
+    console.log(data);
+    initializeData(data);
   }, []);
-
-  function callbackFunction() {
-    var myHeaders = new Headers();
-    myHeaders.append("Accept", "application/json");
-    myHeaders.append("Content-Type", "application/json");
-
-    var raw = JSON.stringify({
-      oauth_token,
-      oauth_verifier,
-    });
-
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "manual",
-      credentials: "include",
-    };
-
-    fetch("http://localhost:3000/callback", requestOptions)
-    .then((response) => response.json())
-    .then((response) => {
-      initializeData(response);
-    })
-    .catch((error) => console.log("error", error));
-  }
 
   function initializeData(data) {
     
@@ -110,10 +83,10 @@ function TwitterNetwork() {
   return (
     <div>
       {status && <Network data={data} />}
-
-      {!status && <h1>Fetching data</h1>}
+      
+      {!status && <h1>Preparing Network</h1>}
     </div>
   );
 }
 
-export default TwitterNetwork;
+export default CustomNetwork;
