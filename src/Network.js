@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import * as d3 from "d3";
 
 function Network({ data }) {
@@ -31,16 +31,17 @@ function Network({ data }) {
           .forceLink()
           .distance(function (d) {
             let w = d.weight;
-            if (w > 1 && w <= 50) return 270;
-            else if (w > 50 && w <= 200) return 250;
-            else if (w > 200) return 200;
+            if (w >= 1 && w <= 3) return 600;
+            else if (w > 3 && w <= 10) return 400;
+            else if (w > 10 && w <= 20) return 200;
+            else if (w > 20) return 100;
           })
           .strength(0.3)
       )
       .force("forceX", d3.forceX().strength(0.1))
       .force("forceY", d3.forceY().strength(0.4))
       .force("charge", d3.forceManyBody().strength(-800))
-      .force("collide", d3.forceCollide().strength(0.5).radius(30))
+      .force("collide", d3.forceCollide().strength(0.5).radius(50))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("y", d3.forceY(0))
       .force("x", d3.forceX(0));
@@ -72,12 +73,12 @@ function Network({ data }) {
       .enter()
       .append("line")
       .attr("stroke-width", function (d) {
-        return d.weight / 20 + 1;
+        return d.weight / 3;
       })
       .style("stroke", function (d) {
-        return `rgba(0, ${d.weight * 5}, 0,  ${d.weight / 25})`;
+        return `rgba(0, ${d.weight * 5}, 0,  ${d.weight / 3})`;
       })
-      .style("opacity", 0.2);
+      .style("opacity", 0.3);
 
     //Creating nodes
     const node = d3
@@ -124,9 +125,20 @@ function Network({ data }) {
     node
       .append("text")
       .text(function (d) {
-        return d.name;
+        var email = d.name.split("@");
+        var name = email[0];
+        return name + "\n";
       })
-      .style("font-size", "12px")
+      .style("font-size", "20px")
+      .style("color", "#212121")
+      .style("font-weight", "700")
+      .append("text")
+      .text(function (d) {
+        var email = d.name.split("@");
+        var domain = email[1];
+        return domain;
+      })
+      .style("font-size", "14px")
       .style("color", "#212121")
       .style("font-weight", "600");
 
@@ -147,7 +159,7 @@ function Network({ data }) {
         });
 
       node.attr("style", (d) => {
-        return "left: " + d.x + "px; top: " + (d.y + 72) + "px";
+        return "left: " + d.x + "px; top: " + (d.y - 5) + "px";
       });
     };
 

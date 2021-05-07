@@ -37,18 +37,15 @@ function loginGoogle() {
 }
 
 class App extends Component {
-
   state = {
-
     // Initially, no file is selected
     selectedFile: null,
-    jsonObject: null
+    jsonObject: null,
   };
-  
+
   // On file select (from the pop up)
-  onFileChange = event => {
-  
-  // Update the state
+  onFileChange = (event) => {
+    // Update the state
     this.setState({ selectedFile: event.target.files[0] });
     var reader = new FileReader();
     reader.onload = this.onFileRead;
@@ -61,35 +58,38 @@ class App extends Component {
     console.log(obj);
     this.setState({ jsonObject: JSON.stringify(obj) });
   };
-  
+
   fileData = () => {
-
     if (this.state.selectedFile) {
-      
-      return (
-      <div>
-        <h5>File Details:</h5>
-  <p><small><small>File Name: {this.state.selectedFile.name}</small></small></p>
-  <p><small><small>File Type: {this.state.selectedFile.type}</small></small></p>
-      </div>
-      );
-    }
-
-    else {
-
       return (
         <div>
-        <h5>Make sure your JSON file is in the following format:</h5>
-        <p><small><small>[</small></small></p>
-        <p><small><small>{'\t{'}</small></small></p>
-        <p><small><small>"source": "...",</small></small></p>
-        <p><small><small>"target": "...",</small></small></p>
-        <p><small><small>"weight": 10</small></small></p>
-        <p><small><small>{'},'}</small></small></p>
-        <p><small><small>...</small></small></p>
-        <p><small><small>]</small></small></p>
+          <h5>File Details:</h5>
+          <p>
+            <small>
+              <small>File Name: {this.state.selectedFile.name}</small>
+            </small>
+          </p>
+          <p>
+            <small>
+              <small>File Type: {this.state.selectedFile.type}</small>
+            </small>
+          </p>
         </div>
-        );
+      );
+    } else {
+      return (
+        <div>
+          <code style={{ fontSize: "60%" }}>
+            Make sure your JSON file is in the following format: [
+            {JSON.stringify({
+              source: "...",
+              target: "...",
+              weight: 10,
+            })}
+            ...]
+          </code>
+        </div>
+      );
     }
   };
 
@@ -114,19 +114,21 @@ class App extends Component {
                     style={styles.button}
                     alt="google"
                   />
-                  <Link to={{ 
-                    pathname: "/custom", 
-                    state: this.state.jsonObject
-                    }}>
+                  <Link
+                    to={{
+                      pathname: "/custom",
+                      state: this.state.jsonObject,
+                    }}
+                  >
                     <img
-                    src={UploadButton}
-                    style={styles.button}
-                    alt="upload"
-                  />
+                      src={UploadButton}
+                      style={styles.button}
+                      alt="upload"
+                    />
                   </Link>
-                  
+
                   <input type="file" onChange={this.onFileChange} />
-                    {this.fileData()}
+                  {this.fileData()}
                 </div>
               </header>
             </div>
@@ -134,11 +136,11 @@ class App extends Component {
           <Route path="/twitter/callback">
             <TwitterNetwork />
           </Route>
-  
+
           <Route path="/oauth-callback">
             <GoogleNetwork />
           </Route>
-  
+
           <Route path="/custom">
             <CustomNetwork />
           </Route>
