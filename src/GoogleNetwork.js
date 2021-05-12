@@ -2,14 +2,13 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import qs from "qs";
 import "./Network.css";
-import Skeleton from 'react-loading-skeleton';
-import {WaveTopBottomLoading, WaveLoading,CircleToBlockLoading } from 'react-loadingg';
-
-
+import { WaveLoading } from "react-loadingg";
 import Network from "./Network";
 
 function createLinks(nodes, raw) {
   let lines = [];
+
+  let MaxWeight = 0;
 
   raw.forEach((element) => {
     let source = element.source;
@@ -18,6 +17,12 @@ function createLinks(nodes, raw) {
     let sourceElement = nodes.find((element) => element.name === source);
     let targetElement = nodes.find((element) => element.name === target);
 
+    sourceElement.weight = element.weight;
+
+    if (element.weight > MaxWeight) {
+      MaxWeight = element.weight;
+    }
+
     lines.push({
       source: sourceElement.id,
       target: targetElement.id,
@@ -25,10 +30,10 @@ function createLinks(nodes, raw) {
     });
   });
 
+  nodes[1].weight = MaxWeight * 1.2;
+
   return lines;
 }
-
-
 
 function createNodes(raw) {
   let characters = [];
@@ -51,7 +56,6 @@ function createNodes(raw) {
       count += 1;
     }
   });
-  console.log('NODE0: ', nodes[0]);
   return nodes;
 }
 
@@ -61,13 +65,12 @@ function mergeData(nodes, links) {
 }
 
 function GoogleNetwork() {
-  const [status, setStatus] = useState(false);
+  const [isLoading, setisLoading] = useState(true);
   const [data, setData] = useState({});
   const location = useLocation();
   const token = qs.parse(location.search, { ignoreQueryPrefix: true }).code;
 
   useEffect(() => {
-   
     var myHeaders = new Headers();
     myHeaders.append("Accept", "application/json");
     myHeaders.append("Content-Type", "application/json");
@@ -90,54 +93,35 @@ function GoogleNetwork() {
       .catch((error) => console.log("error", error));
   }, []);
 
- 
-
-  
   function initializeData(data) {
-    
-
-  
-    console.log('DATA: ', data);
+    console.log("DATA: ", data);
     let nodes = createNodes(data);
-    console.log('NODES: ', nodes);
+    console.log("NODES: ", nodes);
     let links = createLinks(nodes, data);
-    console.log('LINKS: ', links);
+
+    console.log("LINKS: ", links);
     let mergedData = mergeData(nodes, links);
 
     setData(mergedData);
-    setStatus(true);
+    setisLoading(false);
   }
-
-  
 
   return (
     <div>
-      
-      {status &&
-      <div id="page">
-        <h1> Gmail Communication Network </h1> 
-        
-        <Network data={data}/> 
+      {!isLoading && (
+        <div style={{ backgroundColor: "#282c34" }}>
+          <Network data={data} linkColor={"#DB4437"} />
         </div>
-        }
-      
-      
+      )}
 
-
-
-
-
-
-      {!status &&       
-      <div  id="loading">
-        <h1>Fetching data...</h1> 
-
-        <WaveLoading />;
-
-
-      </div>
-}
-
+      {isLoading && (
+        <div className="App">
+          <h1 style={{ fontSize: "100%", marginBottom: -100 }}>
+            Fetching data...
+          </h1>
+          <WaveLoading />
+        </div>
+      )}
     </div>
   );
 }

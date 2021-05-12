@@ -1,24 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import * as d3 from "d3";
 
-function Network({ data }) {
-let max= 0
-    var color = d3.scaleLinear([10, 100], ["brown", "steelblue"]);
+function Network({ data, linkColor }) {
+  let max = 0;
+  let color = d3.scaleLinear([10, 100], ["brown", "steelblue"]);
 
-  function MaxWeight(data){
-   
-    for (let i = 0; i < data.links.length; i++){
-
-      if (data.links[i].weight > max){
-      
-          console.log("current weight",data.links[i].weight)
-          max = data.links[i].weight
-          console.log("this is max:", max)
-}
-        
+  function MaxWeight(data) {
+    for (let i = 0; i < data.links.length; i++) {
+      if (data.links[i].weight > max) {
+        max = data.links[i].weight;
       }
-      console.log(max)
     }
+  }
   function initializeGraph(data, svgClass, width, height) {
     //Initializing chart
     const previousSmallChart = d3.select(svgClass);
@@ -48,10 +41,10 @@ let max= 0
           .forceLink()
           .distance(function (d) {
             let w = d.weight;
-            if (w >= 1 && w <= max * 0.3) return 600; // w <= max_weight / 10
+            if (w >= 1 && w <= max * 0.3) return 600;
             else if (w > max * 0.3 && w <= max * 0.5) return 400;
             else if (w > max * 0.5 && w <= max * 0.9) return 200;
-            else if (w > max * 0.9 ) return 100; // w >= max_weight / 2
+            else if (w > max * 0.9) return 100;
           })
           .strength(0.3)
       )
@@ -92,10 +85,8 @@ let max= 0
       .attr("stroke-width", function (d) {
         return d.weight / 3;
       })
-      .style("stroke", function (d) {
-        return `rgba(0, ${d.weight * 5}, 0,  ${d.weight / 3})`;
-      })
-      .style("opacity", 0.3);
+      .style("stroke", linkColor)
+      .style("opacity", 0.8);
 
     //Creating nodes
     const node = d3
@@ -115,26 +106,31 @@ let max= 0
         tooltip
           .html(d.name)
           .style("left", e.pageX + 5 + "px")
-          .style("top", e.pageY + 5 + "px")
-          .style("opacity", 0.8);
+          .style("top", e.pageY + 5 + "px");
+        //.style("opacity", 0.8);
       })
       .on("mouseout", () => {
         tooltip.style("opacity", 0).style("left", "0px").style("top", "0px");
       });
-      
-
 
     node
       .append("text")
       .text(function (d) {
-        var distance = d.distance
         var email = d.name.split("@");
         var name = email[0];
         return name + "\n";
       })
-      .style("font-size", "20px")
+      .style("font-size", function (d) {
+        let min = 2;
+        let maxFont = 50;
+        let minFont = 15;
+        let scaledWeight =
+          ((maxFont - minFont) * (d.weight - min)) / (max - min) + minFont;
+        return `${scaledWeight}px`;
+      })
       .style("color", color)
-      .style("font-weight", "700")
+      .style("font-weight", "700");
+    node
       .append("text")
       .text(function (d) {
         var email = d.name.split("@");
@@ -144,12 +140,8 @@ let max= 0
       .style("font-size", "14px")
       .style("color", color)
       .style("font-weight", "600")
+      .style("opacity", 0.5);
 
-
-      .append("circle")
-      .style("color", "#212121")
-
-      
     //Setting location when ticked
     const ticked = () => {
       link
@@ -167,10 +159,9 @@ let max= 0
         });
 
       node.attr("style", (d) => {
-        return "left: " + d.x + "px; top: " + (d.y - 5) + "px";
+        return "left: " + (d.x - 20) + "px; top: " + (d.y - 20) + "px";
       });
     };
-
 
     //Starting simulation
     simulation.nodes(data.nodes).on("tick", ticked);
@@ -180,17 +171,17 @@ let max= 0
 
   useEffect(() => {
     console.log(data);
-    console.log(data.links)
-    // console.log(Math.max.apply(null, data.links.weight))
+
     MaxWeight(data);
     initializeGraph(data, ".chart", 1680, 800);
-    
   }, []);
 
   return (
-    <div className="container">
-      <div className="chartContainer">
-        <svg className="chart"></svg>
+    <div className="network">
+      <div className="container">
+        <div className="chartContainer">
+          <svg className="chart"></svg>
+        </div>
       </div>
     </div>
   );

@@ -46,7 +46,6 @@ function createNodes(raw) {
       count += 1;
     }
   });
-  console.log('NODE0: ', nodes[0]);
   return nodes;
 }
 
@@ -68,12 +67,11 @@ function CustomNetwork() {
   }, []);
 
   function initializeData(data) {
-    
-    console.log('DATA: ', data);
+    console.log("DATA: ", data);
     let nodes = createNodes(data);
-    console.log('NODES: ', nodes);
+    console.log("NODES: ", nodes);
     let links = createLinks(nodes, data);
-    console.log('LINKS: ', links);
+    console.log("LINKS: ", links);
     let mergedData = mergeData(nodes, links);
 
     setData(mergedData);
@@ -83,7 +81,7 @@ function CustomNetwork() {
   return (
     <div>
       {status && <Network data={data} />}
-      
+
       {!status && <h1>Preparing Network</h1>}
     </div>
   );

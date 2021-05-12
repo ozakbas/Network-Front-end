@@ -99,38 +99,32 @@ class App extends Component {
         <Switch>
           <Route exact path="/">
             <div className="App">
-              <header className="App-header">
-                <div style={styles.container}>
-                  <h1>Sign in or upload JSON file to visualise your network</h1>
-                  <img
-                    src={TwitterButton}
-                    onClick={() => loginTwitter()}
-                    style={styles.button}
-                    alt="twitter"
-                  />
-                  <img
-                    src={GoogleButton}
-                    onClick={() => loginGoogle()}
-                    style={styles.button}
-                    alt="google"
-                  />
-                  <Link
-                    to={{
-                      pathname: "/custom",
-                      state: this.state.jsonObject,
-                    }}
-                  >
-                    <img
-                      src={UploadButton}
-                      style={styles.button}
-                      alt="upload"
-                    />
-                  </Link>
+              <div style={styles.container}>
+                <h1>Sign in or upload JSON file to visualise your network</h1>
+                <img
+                  src={TwitterButton}
+                  onClick={() => loginTwitter()}
+                  style={styles.button}
+                  alt="twitter"
+                />
+                <img
+                  src={GoogleButton}
+                  onClick={() => loginGoogle()}
+                  style={styles.button}
+                  alt="google"
+                />
+                <Link
+                  to={{
+                    pathname: "/custom",
+                    state: this.state.jsonObject,
+                  }}
+                >
+                  <img src={UploadButton} style={styles.button} alt="upload" />
+                </Link>
 
-                  <input type="file" onChange={this.onFileChange} />
-                  {this.fileData()}
-                </div>
-              </header>
+                <input type="file" onChange={this.onFileChange} />
+                {this.fileData()}
+              </div>
             </div>
           </Route>
           <Route path="/twitter/callback">
