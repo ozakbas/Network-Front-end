@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import qs from "qs";
 import "./Network.css";
+import Skeleton from 'react-loading-skeleton';
+import {WaveTopBottomLoading, WaveLoading,CircleToBlockLoading } from 'react-loadingg';
+
 
 import Network from "./Network";
 
@@ -24,6 +27,8 @@ function createLinks(nodes, raw) {
 
   return lines;
 }
+
+
 
 function createNodes(raw) {
   let characters = [];
@@ -85,8 +90,13 @@ function GoogleNetwork() {
       .catch((error) => console.log("error", error));
   }, []);
 
+ 
+
+  
   function initializeData(data) {
     
+
+  
     console.log('DATA: ', data);
     let nodes = createNodes(data);
     console.log('NODES: ', nodes);
@@ -98,11 +108,36 @@ function GoogleNetwork() {
     setStatus(true);
   }
 
+  
+
   return (
     <div>
-      {status && <Network data={data} />}
+      
+      {status &&
+      <div id="page">
+        <h1> Gmail Communication Network </h1> 
+        
+        <Network data={data}/> 
+        </div>
+        }
+      
+      
 
-      {!status && <h1>Fetching data</h1>}
+
+
+
+
+
+      {!status &&       
+      <div  id="loading">
+        <h1>Fetching data...</h1> 
+
+        <WaveLoading />;
+
+
+      </div>
+}
+
     </div>
   );
 }

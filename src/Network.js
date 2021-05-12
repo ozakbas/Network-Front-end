@@ -1,7 +1,24 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import * as d3 from "d3";
 
 function Network({ data }) {
+let max= 0
+    var color = d3.scaleLinear([10, 100], ["brown", "steelblue"]);
+
+  function MaxWeight(data){
+   
+    for (let i = 0; i < data.links.length; i++){
+
+      if (data.links[i].weight > max){
+      
+          console.log("current weight",data.links[i].weight)
+          max = data.links[i].weight
+          console.log("this is max:", max)
+}
+        
+      }
+      console.log(max)
+    }
   function initializeGraph(data, svgClass, width, height) {
     //Initializing chart
     const previousSmallChart = d3.select(svgClass);
@@ -31,10 +48,10 @@ function Network({ data }) {
           .forceLink()
           .distance(function (d) {
             let w = d.weight;
-            if (w >= 1 && w <= 3) return 600;
-            else if (w > 3 && w <= 10) return 400;
-            else if (w > 10 && w <= 20) return 200;
-            else if (w > 20) return 100;
+            if (w >= 1 && w <= max * 0.3) return 600; // w <= max_weight / 10
+            else if (w > max * 0.3 && w <= max * 0.5) return 400;
+            else if (w > max * 0.5 && w <= max * 0.9) return 200;
+            else if (w > max * 0.9 ) return 100; // w >= max_weight / 2
           })
           .strength(0.3)
       )
@@ -87,6 +104,7 @@ function Network({ data }) {
       .data(data.nodes)
       .enter()
       .append("div")
+
       .attr("class", (d) => {
         return "node node-" + d.name;
       })
@@ -103,34 +121,19 @@ function Network({ data }) {
       .on("mouseout", () => {
         tooltip.style("opacity", 0).style("left", "0px").style("top", "0px");
       });
+      
 
-    // Append images
-
-    /*
-    node
-      .append("img")
-      .attr("class", "img")
-      .attr("src", function (d) {
-        let path = `/resized-images/${d.name}.jpg`;
-        return process.env.PUBLIC_URL + path;
-      })
-
-      .attr("height", 60)
-      .attr("width", 60)
-      .on("error", function () {
-        d3.select(this).remove();
-      });
-*/
 
     node
       .append("text")
       .text(function (d) {
+        var distance = d.distance
         var email = d.name.split("@");
         var name = email[0];
         return name + "\n";
       })
       .style("font-size", "20px")
-      .style("color", "#212121")
+      .style("color", color)
       .style("font-weight", "700")
       .append("text")
       .text(function (d) {
@@ -139,9 +142,14 @@ function Network({ data }) {
         return domain;
       })
       .style("font-size", "14px")
-      .style("color", "#212121")
-      .style("font-weight", "600");
+      .style("color", color)
+      .style("font-weight", "600")
 
+
+      .append("circle")
+      .style("color", "#212121")
+
+      
     //Setting location when ticked
     const ticked = () => {
       link
@@ -163,6 +171,7 @@ function Network({ data }) {
       });
     };
 
+
     //Starting simulation
     simulation.nodes(data.nodes).on("tick", ticked);
 
@@ -171,7 +180,11 @@ function Network({ data }) {
 
   useEffect(() => {
     console.log(data);
+    console.log(data.links)
+    // console.log(Math.max.apply(null, data.links.weight))
+    MaxWeight(data);
     initializeGraph(data, ".chart", 1680, 800);
+    
   }, []);
 
   return (
