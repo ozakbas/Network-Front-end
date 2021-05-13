@@ -3,7 +3,6 @@ import * as d3 from "d3";
 
 function Network({ data, linkColor }) {
   let max = 0;
-  let color = d3.scaleLinear([10, 100], ["brown", "steelblue"]);
 
   function MaxWeight(data) {
     for (let i = 0; i < data.links.length; i++) {
@@ -48,8 +47,8 @@ function Network({ data, linkColor }) {
           })
           .strength(0.3)
       )
-      .force("forceX", d3.forceX().strength(0.1))
-      .force("forceY", d3.forceY().strength(0.4))
+      .force("forceX", d3.forceX().strength(height / 10000))
+      .force("forceY", d3.forceY().strength(width / 10000))
       .force("charge", d3.forceManyBody().strength(-800))
       .force("collide", d3.forceCollide().strength(0.5).radius(50))
       .force("center", d3.forceCenter(width / 2, height / 2))
@@ -106,8 +105,8 @@ function Network({ data, linkColor }) {
         tooltip
           .html(d.name)
           .style("left", e.pageX + 5 + "px")
-          .style("top", e.pageY + 5 + "px");
-        //.style("opacity", 0.8);
+          .style("top", e.pageY + 5 + "px")
+          .style("opacity", 0.8);
       })
       .on("mouseout", () => {
         tooltip.style("opacity", 0).style("left", "0px").style("top", "0px");
@@ -128,7 +127,6 @@ function Network({ data, linkColor }) {
           ((maxFont - minFont) * (d.weight - min)) / (max - min) + minFont;
         return `${scaledWeight}px`;
       })
-      .style("color", color)
       .style("font-weight", "700");
     node
       .append("text")
@@ -138,7 +136,6 @@ function Network({ data, linkColor }) {
         return domain;
       })
       .style("font-size", "14px")
-      .style("color", color)
       .style("font-weight", "600")
       .style("opacity", 0.5);
 
@@ -173,7 +170,8 @@ function Network({ data, linkColor }) {
     console.log(data);
 
     MaxWeight(data);
-    initializeGraph(data, ".chart", 1680, 800);
+    console.log(window.innerHeight, window.innerWidth);
+    initializeGraph(data, ".chart", window.innerWidth, window.innerHeight);
   }, []);
 
   return (
