@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import qs from "qs";
 import "./Network.css";
-
+import { WaveLoading } from "react-loadingg";
 import Network from "./Network";
 
 function createLinks(nodes, raw) {
@@ -46,7 +46,6 @@ function createNodes(raw) {
       count += 1;
     }
   });
-  console.log('NODE0: ', nodes[0]);
   return nodes;
 }
 
@@ -59,10 +58,12 @@ function TwitterNetwork() {
   const [status, setStatus] = useState(false);
   const [data, setData] = useState({});
   const location = useLocation();
-  const oauth_token = qs.parse(location.search, { ignoreQueryPrefix: true })
-    .oauth_token;
-  const oauth_verifier = qs.parse(location.search, { ignoreQueryPrefix: true })
-    .oauth_verifier;
+  const oauth_token = qs.parse(location.search, {
+    ignoreQueryPrefix: true,
+  }).oauth_token;
+  const oauth_verifier = qs.parse(location.search, {
+    ignoreQueryPrefix: true,
+  }).oauth_verifier;
 
   useEffect(() => {
     callbackFunction();
@@ -87,20 +88,19 @@ function TwitterNetwork() {
     };
 
     fetch("http://localhost:3000/callback", requestOptions)
-    .then((response) => response.json())
-    .then((response) => {
-      initializeData(response);
-    })
-    .catch((error) => console.log("error", error));
+      .then((response) => response.json())
+      .then((response) => {
+        initializeData(response);
+      })
+      .catch((error) => console.log("error", error));
   }
 
   function initializeData(data) {
-    
-    console.log('DATA: ', data);
+    console.log("DATA: ", data);
     let nodes = createNodes(data);
-    console.log('NODES: ', nodes);
+    console.log("NODES: ", nodes);
     let links = createLinks(nodes, data);
-    console.log('LINKS: ', links);
+    console.log("LINKS: ", links);
     let mergedData = mergeData(nodes, links);
 
     setData(mergedData);
@@ -109,9 +109,20 @@ function TwitterNetwork() {
 
   return (
     <div>
-      {status && <Network data={data} />}
+      {status && (
+        <div style={{ backgroundColor: "#282c34" }}>
+          <Network data={data} linkColor={"#1DA1F2"} />
+        </div>
+      )}
 
-      {!status && <h1>Fetching data</h1>}
+      {!status && (
+        <div className="App">
+          <h1 style={{ fontSize: "100%", marginBottom: -100 }}>
+            Fetching data...
+          </h1>
+          <WaveLoading />
+        </div>
+      )}
     </div>
   );
 }

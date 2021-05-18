@@ -1,7 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import * as d3 from "d3";
 
-function Network({ data }) {
+function Network({ data, linkColor }) {
+  let max = 0;
+
+  function MaxWeight(data) {
+    for (let i = 0; i < data.links.length; i++) {
+      if (data.links[i].weight > max) {
+        max = data.links[i].weight;
+      }
+    }
+  }
   function initializeGraph(data, svgClass, width, height) {
     //Initializing chart
     const previousSmallChart = d3.select(svgClass);
@@ -31,16 +40,17 @@ function Network({ data }) {
           .forceLink()
           .distance(function (d) {
             let w = d.weight;
-            if (w > 1 && w <= 50) return 270;
-            else if (w > 50 && w <= 200) return 250;
-            else if (w > 200) return 200;
+            if (w >= 1 && w <= max * 0.3) return 600;
+            else if (w > max * 0.3 && w <= max * 0.5) return 400;
+            else if (w > max * 0.5 && w <= max * 0.9) return 200;
+            else if (w > max * 0.9) return 100;
           })
           .strength(0.3)
       )
-      .force("forceX", d3.forceX().strength(0.1))
-      .force("forceY", d3.forceY().strength(0.4))
+      .force("forceX", d3.forceX().strength(height / 10000))
+      .force("forceY", d3.forceY().strength(width / 10000))
       .force("charge", d3.forceManyBody().strength(-800))
-      .force("collide", d3.forceCollide().strength(0.5).radius(30))
+      .force("collide", d3.forceCollide().strength(0.5).radius(50))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("y", d3.forceY(0))
       .force("x", d3.forceX(0));
@@ -72,12 +82,10 @@ function Network({ data }) {
       .enter()
       .append("line")
       .attr("stroke-width", function (d) {
-        return d.weight / 20 + 1;
+        return d.weight / 3;
       })
-      .style("stroke", function (d) {
-        return `rgba(0, ${d.weight * 5}, 0,  ${d.weight / 25})`;
-      })
-      .style("opacity", 0.2);
+      .style("stroke", linkColor)
+      .style("opacity", 0.8);
 
     //Creating nodes
     const node = d3
@@ -86,6 +94,7 @@ function Network({ data }) {
       .data(data.nodes)
       .enter()
       .append("div")
+
       .attr("class", (d) => {
         return "node node-" + d.name;
       })
@@ -103,32 +112,32 @@ function Network({ data }) {
         tooltip.style("opacity", 0).style("left", "0px").style("top", "0px");
       });
 
-    // Append images
-
-    /*
-    node
-      .append("img")
-      .attr("class", "img")
-      .attr("src", function (d) {
-        let path = `/resized-images/${d.name}.jpg`;
-        return process.env.PUBLIC_URL + path;
-      })
-
-      .attr("height", 60)
-      .attr("width", 60)
-      .on("error", function () {
-        d3.select(this).remove();
-      });
-*/
-
     node
       .append("text")
       .text(function (d) {
-        return d.name;
+        var email = d.name.split("@");
+        var name = email[0];
+        return name + "\n";
       })
-      .style("font-size", "12px")
-      .style("color", "#212121")
-      .style("font-weight", "600");
+      .style("font-size", function (d) {
+        let min = 2;
+        let maxFont = 50;
+        let minFont = 15;
+        let scaledWeight =
+          ((maxFont - minFont) * (d.weight - min)) / (max - min) + minFont;
+        return `${scaledWeight}px`;
+      })
+      .style("font-weight", "700");
+    node
+      .append("text")
+      .text(function (d) {
+        var email = d.name.split("@");
+        var domain = email[1];
+        return domain;
+      })
+      .style("font-size", "14px")
+      .style("font-weight", "600")
+      .style("opacity", 0.5);
 
     //Setting location when ticked
     const ticked = () => {
@@ -147,7 +156,7 @@ function Network({ data }) {
         });
 
       node.attr("style", (d) => {
-        return "left: " + d.x + "px; top: " + (d.y + 72) + "px";
+        return "left: " + (d.x - 20) + "px; top: " + (d.y - 20) + "px";
       });
     };
 
@@ -159,13 +168,18 @@ function Network({ data }) {
 
   useEffect(() => {
     console.log(data);
-    initializeGraph(data, ".chart", 1680, 800);
+
+    MaxWeight(data);
+    console.log(window.innerHeight, window.innerWidth);
+    initializeGraph(data, ".chart", window.innerWidth, window.innerHeight);
   }, []);
 
   return (
-    <div className="container">
-      <div className="chartContainer">
-        <svg className="chart"></svg>
+    <div className="network">
+      <div className="container">
+        <div className="chartContainer">
+          <svg className="chart"></svg>
+        </div>
       </div>
     </div>
   );

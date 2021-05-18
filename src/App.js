@@ -29,67 +29,84 @@ function loginTwitter() {
 }
 
 function loginGoogle() {
-  fetch("http://localhost:3000/getGoogleData")
-    .then((response) => response.text())
+  var myHeaders = new Headers();
+  myHeaders.append("Accept", "application/json");
+  myHeaders.append("Content-Type", "application/json");
 
-    .then((result) => console.log(result))
+  var requestOptions = {
+    method: "GET",
+    headers: myHeaders,
+    redirect: "manual",
+    credentials: "include",
+  };
+  fetch("http://localhost:3000/getGoogleData", requestOptions)
+    .then((response) => {
+      window.open(response.url, "_self");
+    })
+
     .catch((error) => console.log("there is an error", error));
 }
 
 class App extends Component {
-
   state = {
-
     // Initially, no file is selected
     selectedFile: null,
-    jsonObject: null
+    jsonObject: null,
   };
-  
+
   // On file select (from the pop up)
-  onFileChange = event => {
-  
-  // Update the state
-    this.setState({ selectedFile: event.target.files[0] });
-    var reader = new FileReader();
-    reader.onload = this.onFileRead;
-    reader.readAsText(event.target.files[0]);
-    //this.setState({ selectedFile: obj });
+  onFileChange = (event) => {
+    // Update the state
+    const allowedExtensions =  ['json','txt'];
+    const fileName = event.target.files[0].name;
+    const fileExtension = fileName.split(".").pop();
+    if(!allowedExtensions.includes(fileExtension)){
+      alert("File type not allowed.");
+      event.target.value = '';
+    }
+    else {
+      var reader = new FileReader();
+      reader.onload = this.onFileRead;
+      reader.readAsText(event.target.files[0]);
+      this.setState({ selectedFile: event.target.files[0] });
+    }
   };
 
   onFileRead = (event) => {
-    const obj = JSON.parse(event.target.result);
-    console.log(obj);
-    this.setState({ jsonObject: JSON.stringify(obj) });
-  };
-  
-  fileData = () => {
-
-    if (this.state.selectedFile) {
-      
-      return (
-      <div>
-        <h5>File Details:</h5>
-  <p><small><small>File Name: {this.state.selectedFile.name}</small></small></p>
-  <p><small><small>File Type: {this.state.selectedFile.type}</small></small></p>
-      </div>
-      );
+    try {
+      const obj = JSON.parse(event.target.result);
+      this.setState({ jsonObject: JSON.stringify(obj) });
     }
+    catch {
+      alert("File is not in JSON format.");
+      this.setState({ selectedFile: null });
+    }  
+  };
 
-    else {
-
+  fileData = () => {
+    if (this.state.selectedFile) {
       return (
         <div>
-        <h5>Make sure your JSON file is in the following format:</h5>
-        <p><small><small>[</small></small></p>
-        <p><small><small>{'\t{'}</small></small></p>
-        <p><small><small>"source": "...",</small></small></p>
-        <p><small><small>"target": "...",</small></small></p>
-        <p><small><small>"weight": 10</small></small></p>
-        <p><small><small>{'},'}</small></small></p>
-        <p><small><small>...</small></small></p>
-        <p><small><small>]</small></small></p>
+          <code style={{ fontSize: "40%" }}>
+            File Name: {this.state.selectedFile.name}
+            File Type: {this.state.selectedFile.type}
+          </code>
         </div>
-        );
+      );
+    } else {
+      return (
+        <div>
+          <code style={{ fontSize: "60%" }}>
+            Make sure your JSON file is in the following format: [
+            {JSON.stringify({
+              source: "...",
+              target: "...",
+              weight: 10,
+            })}
+            ...]
+          </code>
+        </div>
+      );
     }
   };
 
@@ -99,46 +116,43 @@ class App extends Component {
         <Switch>
           <Route exact path="/">
             <div className="App">
-              <header className="App-header">
-                <div style={styles.container}>
-                  <h1>Sign in or upload JSON file to visualise your network</h1>
-                  <img
-                    src={TwitterButton}
-                    onClick={() => loginTwitter()}
-                    style={styles.button}
-                    alt="twitter"
-                  />
-                  <img
-                    src={GoogleButton}
-                    onClick={() => loginGoogle()}
-                    style={styles.button}
-                    alt="google"
-                  />
-                  <Link to={{ 
-                    pathname: "/custom", 
-                    state: this.state.jsonObject
-                    }}>
-                    <img
-                    src={UploadButton}
-                    style={styles.button}
-                    alt="upload"
-                  />
+              <div style={styles.container}>
+                <h1>Sign in or upload JSON file to visualise your network</h1>
+                <img
+                  src={TwitterButton}
+                  onClick={() => loginTwitter()}
+                  style={styles.button}
+                  alt="twitter"
+                />
+                <img
+                  src={GoogleButton}
+                  onClick={() => loginGoogle()}
+                  style={styles.button}
+                  alt="google"
+                />
+                {this.state.selectedFile!=null &&
+                  <Link
+                    to={{
+                      pathname: "/custom",
+                      state: this.state.jsonObject,
+                    }}
+                  >
+                    <img src={UploadButton} style={styles.button} alt="upload" />
                   </Link>
-                  
-                  <input type="file" onChange={this.onFileChange} />
-                    {this.fileData()}
-                </div>
-              </header>
+                }
+                <input type="file" accept=".json, .txt" onChange={this.onFileChange} />
+                {this.fileData()}
+              </div>
             </div>
           </Route>
           <Route path="/twitter/callback">
             <TwitterNetwork />
           </Route>
-  
+
           <Route path="/oauth-callback">
             <GoogleNetwork />
           </Route>
-  
+
           <Route path="/custom">
             <CustomNetwork />
           </Route>
