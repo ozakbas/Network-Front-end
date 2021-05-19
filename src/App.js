@@ -29,10 +29,21 @@ function loginTwitter() {
 }
 
 function loginGoogle() {
-  fetch("http://localhost:3000/getGoogleData")
-    .then((response) => response.text())
+  var myHeaders = new Headers();
+  myHeaders.append("Accept", "application/json");
+  myHeaders.append("Content-Type", "application/json");
 
-    .then((result) => console.log(result))
+  var requestOptions = {
+    method: "GET",
+    headers: myHeaders,
+    redirect: "manual",
+    credentials: "include",
+  };
+  fetch("http://localhost:3000/getGoogleData", requestOptions)
+    .then((response) => {
+      window.open(response.url, "_self");
+    })
+
     .catch((error) => console.log("there is an error", error));
 }
 
@@ -46,34 +57,40 @@ class App extends Component {
   // On file select (from the pop up)
   onFileChange = (event) => {
     // Update the state
-    this.setState({ selectedFile: event.target.files[0] });
-    var reader = new FileReader();
-    reader.onload = this.onFileRead;
-    reader.readAsText(event.target.files[0]);
-    //this.setState({ selectedFile: obj });
+    const allowedExtensions =  ['json','txt'];
+    const fileName = event.target.files[0].name;
+    const fileExtension = fileName.split(".").pop();
+    if(!allowedExtensions.includes(fileExtension)){
+      alert("File type not allowed.");
+      event.target.value = '';
+    }
+    else {
+      var reader = new FileReader();
+      reader.onload = this.onFileRead;
+      reader.readAsText(event.target.files[0]);
+      this.setState({ selectedFile: event.target.files[0] });
+    }
   };
 
   onFileRead = (event) => {
-    const obj = JSON.parse(event.target.result);
-    console.log(obj);
-    this.setState({ jsonObject: JSON.stringify(obj) });
+    try {
+      const obj = JSON.parse(event.target.result);
+      this.setState({ jsonObject: JSON.stringify(obj) });
+    }
+    catch {
+      alert("File is not in JSON format.");
+      this.setState({ selectedFile: null });
+    }  
   };
 
   fileData = () => {
     if (this.state.selectedFile) {
       return (
         <div>
-          <h5>File Details:</h5>
-          <p>
-            <small>
-              <small>File Name: {this.state.selectedFile.name}</small>
-            </small>
-          </p>
-          <p>
-            <small>
-              <small>File Type: {this.state.selectedFile.type}</small>
-            </small>
-          </p>
+          <code style={{ fontSize: "40%" }}>
+            File Name: {this.state.selectedFile.name}
+            File Type: {this.state.selectedFile.type}
+          </code>
         </div>
       );
     } else {
@@ -113,16 +130,17 @@ class App extends Component {
                   style={styles.button}
                   alt="google"
                 />
-                <Link
-                  to={{
-                    pathname: "/custom",
-                    state: this.state.jsonObject,
-                  }}
-                >
-                  <img src={UploadButton} style={styles.button} alt="upload" />
-                </Link>
-
-                <input type="file" onChange={this.onFileChange} />
+                {this.state.selectedFile!=null &&
+                  <Link
+                    to={{
+                      pathname: "/custom",
+                      state: this.state.jsonObject,
+                    }}
+                  >
+                    <img src={UploadButton} style={styles.button} alt="upload" />
+                  </Link>
+                }
+                <input type="file" accept=".json, .txt" onChange={this.onFileChange} />
                 {this.fileData()}
               </div>
             </div>
