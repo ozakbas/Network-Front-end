@@ -1,9 +1,7 @@
-import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import qs from "qs";
 import "./Network.css";
-
+import { WaveLoading } from "react-loadingg";
 import Network from "./Network";
+import React from "react";
 
 function createLinks(nodes, raw) {
   let lines = [];
@@ -54,37 +52,44 @@ function mergeData(nodes, links) {
   return data;
 }
 
-function CustomNetwork() {
-  const [status, setStatus] = useState(false);
-  const [data, setData] = useState({});
-  const location = useLocation();
-  const token = qs.parse(location.search, { ignoreQueryPrefix: true }).code;
+class CustomNetwork extends React.Component {
 
-  useEffect(() => {
-    const data = JSON.parse(location.state);
-    console.log(data);
-    initializeData(data);
-  }, []);
-
-  function initializeData(data) {
-    console.log("DATA: ", data);
-    let nodes = createNodes(data);
-    console.log("NODES: ", nodes);
-    let links = createLinks(nodes, data);
-    console.log("LINKS: ", links);
-    let mergedData = mergeData(nodes, links);
-
-    setData(mergedData);
-    setStatus(true);
+  constructor(props) {
+    super(props);
+    this.state={
+      status: false,
+      data: {}  
+    };
   }
 
-  return (
-    <div>
-      {status && <Network data={data} />}
+  initializeData() {
+    const data = JSON.parse(this.props.jsonData);
+    let nodes = createNodes(data);
+    let links = createLinks(nodes, data);
+    let mergedData = mergeData(nodes, links);
+    this.setState({status: true, data: mergedData});
+  }
 
-      {!status && <h1>Preparing Network</h1>}
+  render () {
+    return(
+      <div>
+        {this.state.status && 
+          (
+        <div style={{ backgroundColor: "#282c34" }}>
+          <Network data={this.state.data} linkColor={"#c2680e"} pictures={this.props.pictures} />
+        </div>
+      )}
+        {!this.state.status && this.initializeData() &&
+          (
+        <div className="App">
+          <h1 style={{ fontSize: "100%", marginBottom: -100 }}>
+            Fetching data...
+          </h1>
+          <WaveLoading />
+        </div>
+      )}
     </div>
-  );
+    );
+  }
 }
-
 export default CustomNetwork;

@@ -8,6 +8,7 @@ import TwitterNetwork from "./TwitterNetwork.js";
 import GoogleNetwork from "./GoogleNetwork.js";
 import CustomNetwork from "./CustomNetwork.js";
 import { Component } from "react";
+import ImageUploader from 'react-images-upload';
 
 function loginTwitter() {
   var myHeaders = new Headers();
@@ -48,11 +49,23 @@ function loginGoogle() {
 }
 
 class App extends Component {
-  state = {
-    // Initially, no file is selected
-    selectedFile: null,
-    jsonObject: null,
-  };
+  
+  constructor(props) {
+    super(props);
+    this.state = {
+      // Initially, no file is selected
+      selectedFile: null,
+      jsonObject: null,
+      pictures: []
+    };
+    this.onDrop = this.onDrop.bind(this);
+  }
+  
+  onDrop(picture) {
+    this.setState({
+        pictures: this.state.pictures.concat(picture),
+    });
+  }
 
   // On file select (from the pop up)
   onFileChange = (event) => {
@@ -142,6 +155,15 @@ class App extends Component {
                 }
                 <input type="file" accept=".json, .txt" onChange={this.onFileChange} />
                 {this.fileData()}
+                <ImageUploader
+                  withIcon={true}
+                  withPreview={true}
+                  buttonText='Choose images'
+                  onChange={this.onDrop}
+                  imgExtension={['.jpg', '.gif', '.png', '.gif']}
+                  maxFileSize={5242880}
+                />
+                {this.state.pictures.length!==0 && <img src={URL.createObjectURL(this.state.pictures[0])}></img>}
               </div>
             </div>
           </Route>
@@ -154,7 +176,7 @@ class App extends Component {
           </Route>
 
           <Route path="/custom">
-            <CustomNetwork />
+            <CustomNetwork jsonData={this.state.jsonObject} pictures={this.state.pictures}/>
           </Route>
         </Switch>
       </Router>

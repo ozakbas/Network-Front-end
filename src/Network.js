@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import * as d3 from "d3";
 
-function Network({ data, linkColor }) {
+function Network({ data, linkColor, pictures }) {
   let max = 0;
 
   function MaxWeight(data) {
@@ -111,7 +111,26 @@ function Network({ data, linkColor }) {
       .on("mouseout", () => {
         tooltip.style("opacity", 0).style("left", "0px").style("top", "0px");
       });
+    // Append images
+    node
+    .append("img")
+    .attr("class", "img")
+    .attr("src", function (d) {
+      const extensions = ['.jpg', '.gif', '.png', '.gif'];
+      let index = -1;
+      extensions.forEach(ext => {
+        const i = pictures.findIndex(pic => pic.name === `${d.name}${ext}`);
+        console.log({ext,i});
+        if(i!==-1) { index=i; } 
+      });
+      if(index!==-1) { return URL.createObjectURL(pictures[index]); }
+    })
 
+    .attr("height", 60)
+    .attr("width", 60)
+    .on("error", function () {
+      d3.select(this).remove();
+    });
     node
       .append("text")
       .text(function (d) {
