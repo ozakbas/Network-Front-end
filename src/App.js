@@ -160,10 +160,9 @@ class App extends Component {
                   withPreview={true}
                   buttonText='Choose images'
                   onChange={this.onDrop}
-                  imgExtension={['.jpg', '.gif', '.png', '.gif']}
+                  imgExtension={['.jpg', '.gif', '.png', '.gif', '.jpeg']}
                   maxFileSize={5242880}
                 />
-                {this.state.pictures.length!==0 && <img src={URL.createObjectURL(this.state.pictures[0])}></img>}
               </div>
             </div>
           </Route>

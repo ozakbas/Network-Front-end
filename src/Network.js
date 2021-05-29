@@ -116,7 +116,7 @@ function Network({ data, linkColor, pictures }) {
     .append("img")
     .attr("class", "img")
     .attr("src", function (d) {
-      const extensions = ['.jpg', '.gif', '.png', '.gif'];
+      const extensions = ['.jpg', '.gif', '.png', '.gif', '.jpeg'];
       let index = -1;
       extensions.forEach(ext => {
         const i = pictures.findIndex(pic => pic.name === `${d.name}${ext}`);
