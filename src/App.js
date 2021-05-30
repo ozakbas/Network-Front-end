@@ -130,7 +130,7 @@ class App extends Component {
           <Route exact path="/">
             <div className="App">
               <div style={styles.container}>
-                <h1>Sign in or upload JSON file to visualise your network</h1>
+                <h2>Sign in to visualise your network</h2>
                 <img
                   src={TwitterButton}
                   onClick={() => loginTwitter()}
@@ -143,6 +143,7 @@ class App extends Component {
                   style={styles.button}
                   alt="google"
                 />
+                <h2>Upload JSON file and images to visualise your network</h2>
                 {this.state.selectedFile!=null &&
                   <Link
                     to={{

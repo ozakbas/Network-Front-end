@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import * as d3 from "d3";
 
-function Network({ data, linkColor, pictures }) {
+function Network({ data, linkColor, pictures=[] }) {
   let max = 0;
 
   function MaxWeight(data) {
@@ -124,6 +124,10 @@ function Network({ data, linkColor, pictures }) {
         if(i!==-1) { index=i; } 
       });
       if(index!==-1) { return URL.createObjectURL(pictures[index]); }
+      else { 
+        const path = `/anonymous.png`;
+        return process.env.PUBLIC_URL + path;
+      }
     })
 
     .attr("height", 60)
