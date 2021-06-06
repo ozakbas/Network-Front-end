@@ -21,7 +21,8 @@
 
 .tooltip {
   position: absolute;
-  background-color: lightgrey;
+  background-color: rgba(128, 125, 125, 0.884);
+  border-radius: 10% / 10%;
   padding: 20px;
 }
 

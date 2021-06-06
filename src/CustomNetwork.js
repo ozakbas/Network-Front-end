@@ -17,6 +17,7 @@ function createLinks(nodes, raw) {
       source: sourceElement.id,
       target: targetElement.id,
       weight: element.weight,
+      info: element.info,
     });
   });
 

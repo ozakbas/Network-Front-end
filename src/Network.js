@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import * as d3 from "d3";
+import { Slider, Typography }  from '@material-ui/core';
 
 function Network({ data, linkColor, pictures=[] }) {
   let max = 0;
@@ -11,7 +12,7 @@ function Network({ data, linkColor, pictures=[] }) {
       }
     }
   }
-  function initializeGraph(data, svgClass, width, height) {
+  function initializeGraph(data, svgClass, width, height, scale) {
     //Initializing chart
     const previousSmallChart = d3.select(svgClass);
     previousSmallChart.selectAll("g").remove();
@@ -82,10 +83,22 @@ function Network({ data, linkColor, pictures=[] }) {
       .enter()
       .append("line")
       .attr("stroke-width", function (d) {
-        return d.weight / 3;
+        return (d.weight / 3) * scale;
       })
       .style("stroke", linkColor)
-      .style("opacity", 0.8);
+      .style("opacity", 0.8)
+      .on("mouseover", (e, d) => {
+        if(d.info) {
+          tooltip
+          .html(d.info)
+          .style("left", e.pageX + 5 + "px")
+          .style("top", e.pageY + 5 + "px")
+          .style("opacity", 1);
+        }
+      })
+      .on("mouseout", () => {
+        tooltip.style("opacity", 0).style("left", "0px").style("top", "0px");
+      });
 
     //Creating nodes
     const node = d3
@@ -130,8 +143,8 @@ function Network({ data, linkColor, pictures=[] }) {
       }
     })
 
-    .attr("height", 60)
-    .attr("width", 60)
+    .attr("height", 60 * scale)
+    .attr("width", 60 * scale)
     .on("error", function () {
       d3.select(this).remove();
     });
@@ -179,7 +192,7 @@ function Network({ data, linkColor, pictures=[] }) {
         });
 
       node.attr("style", (d) => {
-        return "left: " + (d.x - 20) + "px; top: " + (d.y - 20) + "px";
+        return "left: " + (d.x - 20) + "px; top: " + (d.y + 40) + "px";
       });
     };
 
@@ -194,12 +207,28 @@ function Network({ data, linkColor, pictures=[] }) {
 
     MaxWeight(data);
     console.log(window.innerHeight, window.innerWidth);
-    initializeGraph(data, ".chart", window.innerWidth, window.innerHeight);
+    initializeGraph(data, ".chart", window.innerWidth, window.innerWidth, 1);
+    window.scroll(0, 500);
   }, []);
 
   return (
     <div className="network">
       <div className="container">
+      <div>
+          <Typography id="discrete-slider-small-steps" gutterBottom>
+            Node Size
+          </Typography>
+          <Slider
+            defaultValue={1}
+            aria-labelledby="discrete-slider-small-steps"
+            step={0.05}
+            marks
+            min={0.5}
+            max={2}
+            valueLabelDisplay="auto"
+            onChange={(e,v) => initializeGraph(data, ".chart", window.innerWidth, window.innerWidth, v)}
+          />
+        </div>
         <div className="chartContainer">
           <svg className="chart"></svg>
         </div>

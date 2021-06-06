@@ -115,6 +115,7 @@ class App extends Component {
               source: "...",
               target: "...",
               weight: 10,
+              info: "...",
             })}
             ...]
           </code>
