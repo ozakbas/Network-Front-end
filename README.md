@@ -1,70 +1,126 @@
-# Getting Started with Create React App
+# Network-Front-end
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
 
-In the project directory, you can run:
+## Installation
 
-### `npm start`
+● install NodeJS:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```bash
+curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+sudo apt install nodejs
+```
 
-### `npm test`
+● install connections-backend source code:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+git clone https://github.com/umutterbas/connections-backend.git
+```
 
-### `npm run build`
+● create .env file 
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+cd connections-backend
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+sudo nano .env
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+● copy the information below to .env file. Twitter
+API keys and Google API keys are written into corresponding places (which are
+_TO_BE_OBTAINED_)
 
-### `npm run eject`
+```bash
+FRONTEND_URL=http://localhost:3001
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+GOOGLE_CLIENT_ID=_TO_BE_OBTAINED_ 
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+GOOGLE_CLIENT_SECRET=_TO_BE_OBTAINED_ 
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+GOOGLE_CLIENT_REDIRECT_URI=http://localhost:3001/oauth-callback
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+TWITTER_CONSUMER_KEY=_TO_BE_OBTAINED_ 
 
-## Learn More
+TWITTER_CONSUMER_SECRET=_TO_BE_OBTAINED_ 
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+TWITTER_CALLBACK_URL=http://localhost:3001/twitter/callback
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+● install NodeJS dependencies and start the server:
 
-### Code Splitting
+```bash
+npm install
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+node server
+```
 
-### Analyzing the Bundle Size
+● install Network-Front-end source code:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```bash
+git clone https://github.com/ozakbas/Network-Front-end.git
+```
 
-### Making a Progressive Web App
+● install NodeJS dependencies and start the server:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```bash
+npm install
 
-### Advanced Configuration
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+● After making sure that the web application is accessible on http://127.0.0.1:3001, install nginx reverse proxy:
 
-### Deployment
+```bash
+sudo apt install nginx
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+● open the default Nginx config file:
+```bash
+sudo nano /etc/nginx/sites-available/default
+```
 
-### `npm run build` fails to minify
+● The information inside the default nginx config file is replaced with the given settings below in order to proxy port 80 to 3001:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```bash
+server {
+   listen 80; 
+   listen [::]:80;
+
+   location / {
+      proxy_pass http://127.0.0.1:3001/; 
+   }
+}
+```
+
+● A test is run on nginx config file to make sure that there is no problem with the syntax of the default config file:
+```bash
+sudo nginx -t
+```
+
+● Nginx is reloaded, enabled and started, status command is run in order to make sure that reverse proxy is active:
+```bash
+sudo systemctl reload nginx
+
+sudo systemctl enable nginx
+
+sudo systemctl start nginx
+
+sudo systemctl status nginx
+```
+
+Check if “active” is present on the output of
+the status command
+
+● If “active” is not present on the output of the previous command, you should check if there exists another application which uses port 80 such as apache2, etc. and it should be stopped
+
+● If “active” is present on the output of the previous command, make sure that our web application is accessible at http://127.0.0.1
+
+
+● The rest boils down to setting port forwarding rules on router interface and giving permission to TCP port 80 from firewall settings:
+```bash
+sudo ufw allow 80/tcp
+
+sudo ufw enable
+```
+
+● If everything is done correctly, public ip of the machine can be used to access the web application
